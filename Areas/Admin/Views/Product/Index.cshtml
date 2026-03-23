@@ -1,0 +1,134 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Rainbow.Models.ShopViewModel
+@{
+    Layout = "_Adminlayout";
+}
+
+<div>Product Page</div>
+
+<div class="container p-4 shadow border-0 mt-4">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <form asp-action="Index" method="get" id="filterForm">
+                <label class="form-label">Filter by Category:</label>
+                <div class="input-group shadow-sm">
+                    @* Thêm biểu tượng ở đầu (tùy chọn) *@
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-tag text-primary"></i>
+                    </span>
+
+                    <select name="categoryId" class="form-select border-start-0" onchange="this.form.submit()">
+                        <option value="" selected="@(string.IsNullOrEmpty(ViewBag.SelectedCategoryId?.ToString()) ? "selected" : null)">
+                            -- All Categories --
+                        </option>
+
+                        @foreach (var cat in Model.CategoryDto)
+                        {
+                            <option value="@cat.Id" selected="@(cat.Id == ViewBag.SelectedCategoryId?.ToString() ? "selected" : null)">
+                                @cat.Name
+                            </option>
+                        }
+                    </select>
+
+                    @* Nút Show All gắn liền vào đuôi *@
+                    <a asp-action="Index" class="btn btn-outline-secondary d-flex align-items-center" title="Reset all filters">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                    </a>
+                </div>
+                <div method="get" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Search by name or category...">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row pb-2">
+        <div class="col-6">
+            <h2 class="text-primary">Product List</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create New Product
+            </a>
+        </div>
+    </div>
+    <p class="text-danger">DEBUG: Số lượng sản phẩm nhận được: @Model.ProductsDto.Count()</p>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Images</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>isActive</th>
+                <th>category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var obj in Model.ProductsDto)
+            {
+                <tr>
+                    <td width="10%">
+                        <img src="~/Browser/images/@obj.ImagePath" class="rounded" width="100%" style="border-radius:5px; border:1px solid #bbb9b9" />
+                    </td>
+                    <td>
+                        @if (obj.Images != null && obj.Images.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var imgUrl in obj.Images)
+                                {
+                                    <img src="~/Browser/@imgUrl" class="rounded border"
+                                         style="width:40px; height:40px; object-fit:cover;"
+                                         alt="Detail image" />
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No detail images</span>
+                        }
+                    </td>
+                    <td>@obj.Name</td>
+                    <td><span class="badge bg-success">@obj.Price</span></td>
+                    <td>@obj.Description</td>
+                    <td>
+                        @if (obj.IsActive)
+                        {
+                            <span class="badge bg-info text-dark">True</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">False</span>
+                        }
+                    </td>
+                    <td>@obj.Category.Name</td>
+                    <td class="text-center">
+                        <div class="w-75 btn-group" role="group">
+                            <a asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
+                                <i class="bi bi-trash-fill"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+        <nav>
+            <ul class="pagination">
+                <div>phân trang </div>
+            </ul>
+        </nav>
+    </table>
+</div>
+
+

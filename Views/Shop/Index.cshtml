@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+@model Rainbow.Models.ShopViewModel
+
+<br />
+<br />
+<br />
+<br />
+<br />
+
+@await Html.PartialAsync("_CategoryList", Model.CategoryDto);
+<div id="product-list-container" class="p-b-10">
+    @* <partial name="_ProductList" /> *@
+	@await Html.PartialAsync("_ProductList", (IEnumerable<Rainbow.Models.ProductDto>)Model.ProductsDto)
+</div>
+
+

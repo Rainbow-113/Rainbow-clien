@@ -1,0 +1,127 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Rainbow.Models.ProductDto
+@{
+    Layout = "_Adminlayout";
+}
+<div>Creat Produc</div>
+
+<div class="container mt-4">
+	<div class="card shadow border-0">
+		<div class="card-header bg-primary text-white py-3">
+			<h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Product</h5>
+		</div>
+		<div class="card-body p-4">
+
+
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="row card p-4 shadow-sm">
+        <h3 class="mb-4 text-primary">Add New Product</h3>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Name" class="form-label fw-bold">Product Name</label>
+            <input asp-for="Name" class="form-control" placeholder="e.g. Apple Watch Series 9" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Category</label>
+                        <select name="categoryId" class="form-select" asp-for="Category.Id" ">
+                <option value="">-- Choose Category --</option>
+                @if (ViewBag.Categories != null)
+                {
+                    foreach (var cat in (IEnumerable<Rainbow.Models.CategoryDto>)ViewBag.Categories)
+                    {
+                        <option value="@cat.Id">@cat.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Price" class="form-label fw-bold">Price</label>
+                        <input asp-for="Price" type="number" min="1" step="1" class="form-control" placeholder="0.00" />
+        </div>
+
+        <div class="col-md-6 mb-3 d-flex align-items-end">
+            <div class="form-check form-switch mb-2">
+                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked>
+                <label class="form-check-label ms-2">Available for sale</label>
+            </div>
+        </div>
+
+         <div class="col-12 mb-3">
+           <label asp-for="Description" class="form-label fw-bold">Mô tả sản phẩm</label>
+           <textarea asp-for="Description" class="form-control" rows="4"
+            placeholder="Nhập thông tin chi tiết về sản phẩm..."></textarea>
+           <span asp-validation-for="Description" class="text-danger"></span>
+         </div>
+
+
+                    @* <div class="card p-4 shadow-sm mb-4">
+                        <h5 class="text-primary mb-4"><i class="bi bi-camera"></i> Hình ảnh sản phẩm</h5>
+
+                        <div class="row mb-4">
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Ảnh chính (Bắt buộc)</label>
+                                <input type="file" asp-for="MainImageFile" class="form-control" accept="image/*"
+                                       onchange="previewImage(this, 'previewMain')" />
+                                <div class="mt-2 position-relative border rounded bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <img id="previewMain" src="#" class="img-fluid d-none" style="max-height: 100%; object-fit: contain;" />
+                                    <div id="placeholderMain" class="text-muted small">Chưa chọn ảnh</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-12"><label class="form-label fw-bold text-secondary mb-3">Ảnh mô tả chi tiết (Tối đa 3 ảnh)</label></div>
+
+                            @for (int i = 1; i <= 3; i++)
+                            {
+                                var fieldName = "SubImageFile" + i;
+                                var previewId = "previewSub" + i;
+                                var placeholderId = "placeholderSub" + i;
+
+                                <div class="col-md-4 mb-3">
+                                    <input type="file" name="@fieldName" class="form-control form-control-sm mb-2"
+                                           accept="image/*" onchange="previewImage(this, '@previewId')" />
+                                    <div class="border rounded bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                        <img id="@previewId" src="#" class="img-fluid d-none" style="max-height: 100%; object-fit: contain;" />
+                                        <span id="@placeholderId" class="text-muted small">Ảnh phụ @i</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div> *@
+
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success px-5">Save Product</button>
+            <a asp-action="Index" class="btn btn-light">Back to List</a>
+        </div>
+    </div>
+</form>
+		</div>
+	</div>
+</div>
+<script>
+    function previewImage(input, previewId) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Hiển thị ảnh preview
+                const img = document.getElementById(previewId);
+                img.src = e.target.result;
+                img.classList.remove('d-none');
+
+                // Ẩn chữ placeholder
+                const placeholderId = previewId.replace('preview', 'placeholder');
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) placeholder.classList.add('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
