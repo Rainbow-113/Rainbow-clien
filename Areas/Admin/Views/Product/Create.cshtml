@@ -15,7 +15,7 @@
 		<div class="card-body p-4">
 
 
-            <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
     <div class="row card p-4 shadow-sm">
         <h3 class="mb-4 text-primary">Add New Product</h3>
 
@@ -27,7 +27,7 @@
 
         <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">Category</label>
-                        <select name="categoryId" class="form-select" asp-for="Category.Id" ">
+                        <select name="categoryId" class="form-select" asp-for="Category.Id">
                 <option value="">-- Choose Category --</option>
                 @if (ViewBag.Categories != null)
                 {
@@ -59,18 +59,14 @@
          </div>
 
 
-                    @* <div class="card p-4 shadow-sm mb-4">
+                    <div class="card p-4 shadow-sm mb-4">
                         <h5 class="text-primary mb-4"><i class="bi bi-camera"></i> Hình ảnh sản phẩm</h5>
 
-                        <div class="row mb-4">
-                            <div class="col-md-5">
-                                <label class="form-label fw-bold">Ảnh chính (Bắt buộc)</label>
-                                <input type="file" asp-for="MainImageFile" class="form-control" accept="image/*"
-                                       onchange="previewImage(this, 'previewMain')" />
-                                <div class="mt-2 position-relative border rounded bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <img id="previewMain" src="#" class="img-fluid d-none" style="max-height: 100%; object-fit: contain;" />
-                                    <div id="placeholderMain" class="text-muted small">Chưa chọn ảnh</div>
-                                </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">Ảnh chính (Test)</label>
+                            <input type="file" asp-for="MainImageFile" class="form-control" onchange="previewImage(this, 'previewMain')" />                            <div class="mt-2 border rounded bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <img id="previewMain" src="#" class="img-fluid d-none" style="max-height: 100%; object-fit: contain;" />
+                                <div id="placeholderMain" class="text-muted small">Chưa chọn ảnh</div>
                             </div>
                         </div>
 
@@ -95,7 +91,7 @@
                                 </div>
                             }
                         </div>
-                    </div> *@
+                    </div>
 
         <div class="col-12 mt-3">
             <button type="submit" class="btn btn-success px-5">Save Product</button>
@@ -103,25 +99,38 @@
         </div>
     </div>
 </form>
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 		</div>
 	</div>
 </div>
-<script>
-    function previewImage(input, previewId) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                // Hiển thị ảnh preview
-                const img = document.getElementById(previewId);
-                img.src = e.target.result;
-                img.classList.remove('d-none');
 
-                // Ẩn chữ placeholder
-                const placeholderId = previewId.replace('preview', 'placeholder');
-                const placeholder = document.getElementById(placeholderId);
-                if (placeholder) placeholder.classList.add('d-none');
-            };
-            reader.readAsDataURL(input.files[0]);
+<script>
+    // 1. Định nghĩa hàm previewImage để khớp với onchange="previewImage(...)"
+     function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const placeholder = document.getElementById('placeholderMain');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const objectUrl = URL.createObjectURL(file);
+
+            preview.src = objectUrl;
+            preview.classList.remove('d-none');
+            if (placeholder) placeholder.style.display = 'none';
+
+            preview.onload = function() {
+                URL.revokeObjectURL(objectUrl);
+            }
+        } else {
+            // Nếu người dùng xóa ảnh đã chọn
+            preview.src = "#";
+            preview.classList.add('d-none');
+            if (placeholder) placeholder.style.display = 'block';
         }
     }
+
+    // 2. Đảm bảo các logic khác chạy sau khi trang load xong
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("Trang đã sẵn sàng!");
+    });
 </script>

@@ -1,0 +1,126 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<Rainbow.Models.UserProfileDto>
+@{
+    Layout = "_Adminlayout";
+}<div>
+    đya là trang Useser1
+</div>
+@Html.AntiForgeryToken()
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Quản lý người dùng</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <form method="get" asp-action="Index" class="d-flex">
+                    <input type="text" name="fullName" value="@ViewBag.SearchTerm"
+                           class="form-control w-75 m-r-10" placeholder="Tìm theo tên...">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-6 text-end">
+                <span class="text-secondary">Tổng cộng: @Model.Count() thành viên</span>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success mt-2">@TempData["Success"]</div>
+        }
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Tài khoản</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.UserName</td>
+                        <td>@item.FullName</td>
+                        <td>@item.Email</td>
+                        <td>
+                            <span class="badge @(item.Role?.ToLower() == "admin" ? "bg-danger" : "bg-primary")">
+                                @item.Role
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="w-75 btn-group" role="group">
+                                <button class="btn btn-danger btn-sm"
+                                        onclick="confirmDeleteUser('@item.Id', '@item.UserName')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmDeleteUser(id, username) {
+                if (!id || id === "") {
+            console.error("Không tìm thấy ID người dùng!");
+            return;
+        }
+            Swal.fire({
+                title: 'Xác nhận xóa người dùng?',
+                text: "Tài khoản " + username + " sẽ bị xóa vĩnh viễn!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Đồng ý xóa!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDeleteUser(id);
+                }
+            });
+        }
+
+                      function executeDeleteUser(id) {
+            // Tạo Form ảo để gửi dữ liệu ẩn danh (POST) lên Server
+            const form = document.createElement('form');
+            form.method = 'POST';
+
+            // Đường dẫn này phải khớp với Area Admin và Controller User
+            form.action = '/Admin/User/Delete/' + id;
+
+            // Lấy Token bảo mật (AntiForgeryToken) để Server chấp nhận yêu cầu
+            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenElement) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = tokenElement.value;
+                form.appendChild(tokenInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit(); // Thực thi lệnh xóa và tự động Redirect về trang danh sách
+        }
+    </script>
+}

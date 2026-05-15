@@ -67,7 +67,7 @@
 
 							<div class="size-204 respon6-next">
 								<div class="rs1-select2 bor8 bg0">
-									<select class="js-select2" name="time">
+									<select class="js-select2" name="size">
 										<option>Choose an option</option>
 										<option>Size S</option>
 										<option>Size M</option>
@@ -86,7 +86,7 @@
 
 							<div class="size-204 respon6-next">
 								<div class="rs1-select2 bor8 bg0">
-									<select class="js-select2" name="time">
+									<select class="js-select2" name="color">
 										<option>Choose an option</option>
 										<option>Red</option>
 										<option>Blue</option>
@@ -112,7 +112,7 @@
 									</div>
 								</div>
 
-								<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+								<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-my-add-cart">
 									Add to cart
 								</button>
 							</div>
@@ -328,3 +328,51 @@
 		</span>
 	</div>
 </section>
+@section Scripts{
+<script>
+	$(document).on('click', '.js-my-add-cart', function (e) {
+		e.preventDefault(); // Ngăn chặn mọi hành động mặc định của template
+
+		console.log("Nút đã được nhấn!"); // Dòng này cực kỳ quan trọng để kiểm tra
+
+		var productId = "@Model.Id";
+		var quantity = $('.num-product').val();
+		var size = $('select[name="size"]').val();
+		var color = $('select[name="color"]').val();
+
+		// Log dữ liệu ra xem có lấy được không
+		console.log("Data:", productId, quantity, size, color);
+
+		if (!size || size === "Choose an option" || !color || color === "Choose an option") {
+			swal("Thông báo", "Vui lòng chọn đầy đủ Size và Color!", "warning");
+			return;
+		}
+
+		var cartData = {
+			productId: productId,
+			quantity: parseInt(quantity),
+			size: size,
+			color: color
+		};
+
+		$.ajax({
+			url: '/Shop/AddToCart',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(cartData),
+			success: function (response) {
+				console.log("Server phản hồi:", response);
+				if (response.success) {
+					window.location.href = "/Shop/Cart";
+				} else {
+					swal("Lỗi", response.message, "error");
+				}
+			},
+			error: function (xhr) {
+				console.error("Lỗi AJAX:", xhr.responseText);
+				swal("Lỗi", "Không thể kết nối đến máy chủ!", "error");
+			}
+		});
+	});
+</script>
+}

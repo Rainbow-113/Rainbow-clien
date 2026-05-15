@@ -7,7 +7,7 @@
 }
 
 <div>Product Page</div>
-
+@Html.AntiForgeryToken()
 <div class="container p-4 shadow border-0 mt-4">
     <div class="row mb-3">
         <div class="col-md-4">
@@ -114,9 +114,10 @@
                             <a asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </a>
-                            <a asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
-                                <i class="bi bi-trash-fill"></i> Delete
-                            </a>
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="confirmDeleteProduct('@obj.Id', '@System.Web.HttpUtility.JavaScriptStringEncode(obj.Name)')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -131,4 +132,42 @@
     </table>
 </div>
 
+@section Scripts {
+    <script>
+        function confirmDeleteProduct(id, name) {
+            Swal.fire({
+                title: 'Xóa sản phẩm?',
+                text: `Bạn có chắc muốn xóa "${name}"? Hành động này không thể hoàn tác!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDeleteProduct(id);
+                }
+            })
+        }
 
+        function executeDeleteProduct(id) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Admin/Product/Delete/' + id; // Đường dẫn Action trong C#
+
+            // Lấy Anti-Forgery Token (Đừng quên thêm @Html.AntiForgeryToken() vào trang)
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = token.value;
+                form.appendChild(tokenInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+}

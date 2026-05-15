@@ -8,7 +8,7 @@ namespace Rainbow.Models
         [JsonPropertyName("_id")]
         public string Id { get; set; }
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [JsonPropertyName("price")]
         public decimal Price { get; set; }
         [JsonPropertyName("description")]
@@ -21,7 +21,8 @@ namespace Rainbow.Models
         [JsonPropertyName("categoryId")]
         // 1. Thuộc tính này để C# làm việc với View
         [JsonIgnore] // Bỏ qua khi giải mã JSON tự động
-        public CategoryDto Category { get; set; }
+        public string? CategoryId { get; set; } 
+        public CategoryDto? Category { get; set; }
         // 2. Thuộc tính này để nhận dữ liệu "thô" từ Node.js
         [JsonPropertyName("categoryId")]
         public object RawCategoryId

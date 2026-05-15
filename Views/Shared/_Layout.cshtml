@@ -1,6 +1,29 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
+	@using Microsoft.AspNetCore.Http
+	@inject IHttpContextAccessor HttpContextAccessor
+	<style>
+		/* Khung chứa ảnh */
+		.block2-pic {
+			width: 100%;
+			height: 350px; /* Bạn có thể điều chỉnh chiều cao này cho phù hợp */
+			overflow: hidden;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: #f8f8f8; /* Màu nền cho những ảnh nhỏ hơn khung */
+		}
+
+			/* Ép ảnh lấp đầy khung */
+			.block2-pic img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover; /* Quan trọng: Giúp ảnh không bị méo khi ép kích thước */
+				object-position: center;
+			}
+	</style>
 	<title>Home</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -106,6 +129,34 @@
 							<li>
 								<a href="contact.html">Contact</a>
 							</li>
+							@{
+								// Lấy thông tin từ Session
+								var token = HttpContextAccessor.HttpContext.Session.GetString("JWToken");
+								var userName = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+							}
+
+							@if (!string.IsNullOrEmpty(token))
+							{
+								<li  class="nav-item d-flex align-items-center">
+									<a asp-controller="Account" asp-action="DetailAccount" style="cursor:pointer" class="nav-link text-primary fw-bold">Xin chào, @userName!</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link btn btn-link text-danger" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+								</li>
+							}
+							else
+							{
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Đăng ký</a>
+								</li>
+							}
+						</ul>
+						
+						<ul class="navbar-nav">
+							
 						</ul>
 					</div>
 
@@ -221,6 +272,7 @@
 					<a href="contact.html">Contact</a>
 				</li>
 			</ul>
+			
 		</div>
 
 		<!-- Modal Search -->
@@ -312,11 +364,11 @@
 					</div>
 
 					<div class="header-cart-buttons flex-w w-full">
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+						<a href="@Url.Action("Cart", "Shop")" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
 							View Cart
 						</a>
 
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+						<a href="@Url.Action("Cart", "Shop")" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
 							Check Out
 						</a>
 					</div>

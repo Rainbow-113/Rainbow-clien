@@ -232,8 +232,8 @@ D:\laptrinh\Api\Rainbow\obj\Debug\net8.0\Rainbow.csproj.AssemblyReference.cache
 D:\laptrinh\Api\Rainbow\obj\Debug\net8.0\Rainbow.csproj.Up2Date
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\appsettings.Development.json
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\appsettings.json
-D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.staticwebassets.endpoints.json
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.staticwebassets.runtime.json
+D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.staticwebassets.endpoints.json
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.exe
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.deps.json
 D:\Rainbowall\Rainbowclient\bin\Debug\net8.0\Rainbow.runtimeconfig.json
@@ -444,6 +444,7 @@ D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\Rainbow.csproj.CoreCompileInputs.ca
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\Rainbow.MvcApplicationPartsAssemblyInfo.cache
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\Rainbow.RazorAssemblyInfo.cache
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\Rainbow.RazorAssemblyInfo.cs
+D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\Rainbow.sourcelink.json
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\rjimswa.dswa.cache.json
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 D:\Rainbowall\Rainbowclient\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json

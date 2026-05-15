@@ -1,7 +1,7 @@
 ﻿using Rainbow.Models;
-using System.Collections.Generic; // Để hiểu List<>
+using System.Collections.Generic; 
 using System.Text.Json;
-using System.Threading.Tasks;    // Để hiểu Task<>
+using System.Threading.Tasks;    
 namespace Rainbow.Services
 {
     public class ProductService
@@ -11,7 +11,6 @@ namespace Rainbow.Services
         {
             _httpClient = httpClient;
         }
-
         public async Task<List<ProductDto>> GetAllProducts(string? categoryId = null, string? searchTerm = null)
         {
             // 1. Khởi tạo URL cơ sở với tham số adminView để lấy toàn bộ dữ liệu
@@ -44,7 +43,6 @@ namespace Rainbow.Services
 
             return new List<ProductDto>();
         }
-
         public async Task<List<ProductDto>> GetActiveProducts(string? categoryId = null)
         {
             // Tạo URL cơ sở
@@ -56,7 +54,11 @@ namespace Rainbow.Services
             var response = await _httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<List<ProductDto>>();
+                var allProducts = await response.Content.ReadFromJsonAsync<List<ProductDto>>();
+
+                // --- THÊM DÒNG NÀY ĐỂ LỌC ---
+                // Chỉ trả về những sản phẩm có IsActive là true
+                return allProducts?.Where(p => p.IsActive).ToList() ?? new List<ProductDto>();
             }
             return new List<ProductDto>();
         }
@@ -84,22 +86,39 @@ namespace Rainbow.Services
         {
             return await _httpClient.GetFromJsonAsync<List<ProductDto>>($"api/products/search?name={keyword}");
         }
+        //checkname
+        public async Task<bool> IsNameExistsAsync(string name)
+        {
+            try
+            {
+                var url = $"api/products/check-name?name={Uri.EscapeDataString(name.Trim())}";
+                var response = await _httpClient.GetAsync(url);
 
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                   
+                    return content.Trim().ToLower().Replace("\"", "") == "true";
+                }
+                return false;
+            }
+            catch { return false; }
+        }
         public async Task<bool> CreateProductAsync(ProductDto productDto)
         {
             try
             {
-                using var content = new MultipartFormDataContent();
+                using var content = new MultipartFormDataContent(); 
 
-                // Thêm dữ liệu (Sử dụng toán tử ?? "" để tránh lỗi Null)
+               
                 content.Add(new StringContent(productDto.Name ?? ""), "name");
                 content.Add(new StringContent(productDto.Price.ToString()), "price");
                 content.Add(new StringContent(productDto.Description ?? ""), "description");
                 content.Add(new StringContent(productDto.IsActive.ToString().ToLower()), "isActive");
 
-                if (productDto.Category != null && !string.IsNullOrEmpty(productDto.Category.Id))
+                if (!string.IsNullOrEmpty(productDto.CategoryId))
                 {
-                    content.Add(new StringContent(productDto.Category.Id), "categoryId");
+                    content.Add(new StringContent(productDto.CategoryId), "categoryId");
                 }
 
                 if (!string.IsNullOrEmpty(productDto.ImagePath))
@@ -117,20 +136,58 @@ namespace Rainbow.Services
                 }
                 var debugContent = await content.ReadAsStringAsync();
                 System.Diagnostics.Debug.WriteLine(">>> DỮ LIỆU C# CHUẨN BỊ GỬI: " + debugContent);
-                // GỬI REQUEST - Dùng URL tuyệt đối để test nhanh nhất
+                // GỬI REQUEST - Dùng URL tuyệt đối để test
                 var response = await _httpClient.PostAsync("http://localhost:5000/api/products", content);
 
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                // Ghi lại lỗi chính xác vào cửa sổ Output thay vì sập web
+                
                 System.Diagnostics.Debug.WriteLine("CRITICAL ERROR: " + ex.Message);
                 if (ex.InnerException != null)
                     System.Diagnostics.Debug.WriteLine("INNER ERROR: " + ex.InnerException.Message);
 
-                return false; // Trả về false để Controller xử lý tiếp, không làm sập app
+                return false;
             }
         }
+        
+        public async Task<bool> DeleteProductAsync(string id)
+        {
+            try {
+                //gửi yêu cầu dele qua api
+                var response = await _httpClient.DeleteAsync($"api/products/{id}");
+
+
+                return response.IsSuccessStatusCode;
+
+            }
+            catch(Exception ex)
+            {
+                // Ghi log lỗi nếu cần thiết
+                Console.WriteLine($"Lỗi khi gọi API xóa Product: {ex.Message}");
+                return false;
+            } 
+        }
+
+        public async Task<bool> UpdateProductAsync(string id, ProductDto productDto)
+        {
+            try
+            {
+                // Khi gửi sang Node.js, ta cần chuyển Id của Category về dạng chuỗi đơn giản
+                // Nếu Category không null, lấy Id của nó gán vào CategoryId
+                if (productDto.Category != null && string.IsNullOrEmpty(productDto.CategoryId))
+                {
+                    productDto.CategoryId = productDto.Category.Id;
+                }
+
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var response = await _httpClient.PutAsJsonAsync($"api/products/{id}", productDto, options);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch { return false; }
+        }
+
     }
 }

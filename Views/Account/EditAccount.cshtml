@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Rainbow.Models.UserProfileDto
+
+<div class="container p-t-100 p-b-100">
+    <div class="bor10 p-lr-40 p-t-30 p-b-40 bg0">
+        <h4 class="mtext-105 cl2 txt-center p-b-30">Cập nhật hồ sơ</h4>
+
+        <form asp-action="EditAccount" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="m-b-20">
+                <span class="stext-110 cl2">Tên tài khoản</span>
+                <input asp-for="UserName" class="stext-111 cl2 size-116 bor13 p-lr-20 m-t-10" placeholder="Nhập Tên Tài Khoản..." />
+            </div>
+
+            <div class="m-b-20">
+                <span class="stext-110 cl2">Họ và tên</span>
+                <input asp-for="FullName" class="stext-111 cl2 size-116 bor13 p-lr-20 m-t-10" placeholder="Nhập họ tên..." />
+            </div>
+
+            <div class="m-b-20">
+                <span class="stext-110 cl2">Số điện thoại</span>
+                <input asp-for="Number" class="stext-111 cl2 size-116 bor13 p-lr-20 m-t-10" placeholder="Nhập số điện thoại..." />
+            </div>
+
+            <div class="m-b-20">
+                <span class="stext-110 cl2">Email</span>
+                <input asp-for="Email" class="stext-111 cl2 size-116 bor13 p-lr-20 m-t-10" placeholder="Nhập Email ..." />
+            </div>
+
+            <div class="m-b-20">
+                <span class="stext-110 cl2">Địa chỉ</span>
+                <input asp-for="Address" class="stext-111 cl2 size-116 bor13 p-lr-20 m-t-10" placeholder="Nhập địa chỉ..." />
+            </div>
+
+
+            <button type="submit" class="flex-c-m stext-101 cl0 size-116 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                Lưu thay đổi
+            </button>
+        </form>
+    </div>
+</div>

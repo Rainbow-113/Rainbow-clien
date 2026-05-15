@@ -1,0 +1,106 @@
+﻿@model Rainbow.Models.OrderDto
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<div class="container p-t-100 p-b-50">
+    <form asp-controller="Checkout" asp-action="ConfirmOrder" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <div class="col-lg-7 col-xl-7 m-lr-auto m-b-50">
+                <div class="p-r-40 p-lr-0-xl">
+                    <h4 class="mtext-109 cl2 p-b-30">Thông tin nhận hàng</h4>
+
+                    <div class="bor8 m-b-20 how-pos4-parent">
+                        <input class="stext-111 cl2 plh3 size-116 p-l-20 p-r-30" type="text"
+                               asp-for="FullName" placeholder="Họ và tên người nhận *" required>
+                    </div>
+
+                    <div class="bor8 m-b-20 how-pos4-parent">
+                        <input class="stext-111 cl2 plh3 size-116 p-l-20 p-r-30" type="text"
+                               asp-for="Address" placeholder="Địa chỉ giao hàng (Số nhà, tên đường...) *" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="bor8 m-b-20 how-pos4-parent">
+                                <input class="stext-111 cl2 plh3 size-116 p-l-20 p-r-30" type="text"
+                                       asp-for="PhoneNumber" placeholder="Số điện thoại *" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bor8 m-b-20 how-pos4-parent">
+                                <input class="stext-111 cl2 plh3 size-116 p-l-20 p-r-30" type="email"
+                                       asp-for="Email" placeholder="Email nhận thông báo">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="mtext-109 cl2 p-b-20 p-t-10">Phương thức thanh toán</h4>
+                    <div class="p-b-30">
+                        <div class="flex-w flex-t m-b-12">
+                            <div class="p-t-5 m-r-10">
+                                <input type="radio" asp-for="PaymentMethod" value="COD" checked id="cod">
+                            </div>
+                            <label for="cod" class="stext-111 cl6">Thanh toán khi nhận hàng (COD)</label>
+                        </div>
+
+                        <div class="flex-w flex-t m-b-12">
+                            <div class="p-t-5 m-r-10">
+                                <input type="radio" asp-for="PaymentMethod" value="BankTransfer" id="bank">
+                            </div>
+                            <label for="bank" class="stext-111 cl6">Chuyển khoản ngân hàng</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-xl-5 m-lr-auto m-b-50">
+                <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl">
+                    <h4 class="mtext-109 cl2 p-b-30">Đơn hàng của bạn</h4>
+
+                    <ul class="header-cart-wrapitem w-full p-b-20">
+                        @if (Model?.Items != null)
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <li class="header-cart-item flex-w flex-t m-b-12">
+                                    <div class="header-cart-item-txt p-t-8">
+                                        <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                                            @item.ProductName
+                                        </a>
+                                        <span class="header-cart-item-info">
+                                            @item.Quantity x @item.Price.ToString("C")
+                                        </span>
+                                        <div class="stext-110 cl6">
+                                            Size: @item.Size | Color: @item.Color
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    <div class="flex-w flex-t bor12 p-b-13">
+                        <div class="size-208">
+                            <span class="stext-110 cl2">Tổng cộng:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="mtext-110 cl2">@Model?.TotalAmount.ToString("C")</span>
+                        </div>
+                    </div>
+                    <form asp-action="ConfirmOrder" asp-controller="Checkout"  method="post">
+                        <button type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer m-t-20">
+                            XÁC NHẬN ĐẶT HÀNG
+                        </button>
+                    </form>
+                    
+
+                    <div asp-validation-summary="All" class="text-danger m-t-10"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

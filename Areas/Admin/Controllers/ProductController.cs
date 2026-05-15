@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Rainbow.Models;
 using Rainbow.Services;
 using System.Threading.Tasks;
-
+using static System.Net.Mime.MediaTypeNames;
 namespace Rainbow.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -14,11 +15,13 @@ namespace Rainbow.Areas.Admin.Controllers
         private readonly CategoryService _categoryService;
         private readonly dynamic categoryId;
         private dynamic categories;
-
-        public ProductController(ProductService productService, CategoryService categoryService)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(ProductService productService, CategoryService categoryService,IWebHostEnvironment webHostEnvironment)
         {
             _productService = productService;
             _categoryService = categoryService;
+            _webHostEnvironment = webHostEnvironment;
+
         }
         // GET: ProductController
         public async Task<ActionResult> Index(string categoryId , string searchTerm)
@@ -35,14 +38,10 @@ namespace Rainbow.Areas.Admin.Controllers
             ViewBag.CurrentSearch = searchTerm;
             return View(viewBag);
         }
-
-        // GET: ProductController/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
-
-        // GET: ProductController/Create
         [HttpGet]
         public async Task<ActionResult> Create()
         {
@@ -50,119 +49,147 @@ namespace Rainbow.Areas.Admin.Controllers
             ViewBag.Categories = categories;
             return View(new ProductDto());
         }
-
-        // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(ProductDto productDto)
         {
-            // Kiểm tra xem dữ liệu nhập vào có hợp lệ không (ví dụ: Price > 0)
-            if (!ModelState.IsValid)
-            {
-                // Nếu lỗi, phải nạp lại Category cho Dropdown trước khi trả về View
-                ViewBag.Categories = await _categoryService.GetAllCategories();
-                return View(productDto);
-            }
             try
-            {
-                // 1. Xử lý lưu ảnh chính
-                if (productDto.MainImageFile != null)
+            {  
+                ModelState.Remove("Id");
+                ModelState.Remove("ImagePath");
+                bool isNameUsed = await _productService.IsNameExistsAsync(productDto.Name);
+                if (isNameUsed)
                 {
-                    productDto.ImagePath = await SaveFile(productDto.MainImageFile);
+                    ModelState.AddModelError("Name", "Tên sản phẩm này đã tồn tại. Vui lòng chọn tên khác!");
                 }
-
-                // 2. Xử lý lưu ảnh phụ
-                var subFiles = new[] { productDto.SubImageFile1, productDto.SubImageFile2, productDto.SubImageFile3 };
-                foreach (var file in subFiles)
+                if (ModelState.IsValid)
                 {
-                    if (file != null)
+                        // 1.ảnh chính
+                        if (productDto.MainImageFile != null)
+                        {
+                            productDto.ImagePath = await SaveFile(productDto.MainImageFile);
+                        }
+                        // 2. ảnh phụ
+                        var subFiles = new[] { productDto.SubImageFile1, productDto.SubImageFile2, productDto.SubImageFile3 };
+                        foreach (var file in subFiles)
+                        {
+                            if (file != null)
+                            {
+                                string fileName = await SaveFile(file);
+                                productDto.Images.Add($"/images/" + fileName);
+                            }
+                        }
+                    bool isSaved = await _productService.CreateProductAsync(productDto);
+                    Console.WriteLine("4. KẾT QUẢ API: " + isSaved);
+                    if (isSaved)
                     {
-                        string fileName = await SaveFile(file);
-                        productDto.Images.Add("/Browser/images/" + fileName);
+                        return RedirectToAction(nameof(Index));
                     }
+                    ModelState.AddModelError("", "Không thể lưu sản phẩm sang API.");
                 }
-
-                // 3. Gọi Service lưu vào Node.js API
-                bool isSaved = await _productService.CreateProductAsync(productDto);
-
-                if (isSaved)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-
-                // Nếu API trả về false, thêm thông báo lỗi
-                ModelState.AddModelError("", "Không thể lưu sản phẩm sang API.");
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Có lỗi xảy ra: " + ex.Message);
             }
-
-            // ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT: Trả về View nếu 'isSaved' false HOẶC có Exception
             ViewBag.Categories = await _categoryService.GetAllCategories();
             return View(productDto);
         }
-        
+       
+        public async Task<ActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var product = await _productService.GetProductById(id);
+            if (product == null) return NotFound();
+
+            // Lấy danh sách Category để đổ vào DropdownList (nếu bạn có CategoryService)
+            ViewBag.CategoryList = await _categoryService.GetAllCategories();
+
+            return View(product);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, ProductDto productDto)
+        {
+            try
+            {
+                if (productDto.MainImageFile != null)
+                {     
+                    productDto.ImagePath = await SaveFile(productDto.MainImageFile);
+                }
+                // 2. Xử lý ảnh phụ
+                var subFiles = new[] { productDto.SubImageFile1, productDto.SubImageFile2, productDto.SubImageFile3 };
+                productDto.Images = new List<string>();
+                foreach (var file in subFiles)
+                {
+                    if (file != null)
+                    {
+                        // Lưu file vào thư mục vật lý 'Browser/images' thông qua hàm SaveFile
+                        string filePath = await SaveFile(file);
+                        productDto.Images.Add("/images/" + filePath);
+                    }
+                }
+
+                // Gọi Service gửi sang Node.js
+                bool isUpdated = await _productService.UpdateProductAsync(id, productDto);
+                if (isUpdated) return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi ra màn hình Console để bạn đọc được
+                Console.WriteLine($"LỖI CỤ THỂ: {ex.Message}");
+                ModelState.AddModelError("", "Lỗi lưu ảnh: " + ex.Message);
+            }
+
+            return View(productDto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Delete(string id, IFormCollection collection)
+        {
+            // Kiểm tra ID có trống không
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
+            // Gọi Service để xóa (Đảm bảo Service đã sửa lỗi chính tả 'prodcuts' -> 'products')
+            bool isDeleted = await _productService.DeleteProductAsync(id);
+
+            if (isDeleted)
+            {
+                TempData["Success"] = "Xóa sản phẩm thành công!";
+            }
+            else
+            {
+                // Nếu vào đây, hãy kiểm tra Log của Node.js xem có nhận được request không
+                TempData["Error"] = "Lỗi! Không thể xóa sản phẩm.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
         private async Task<string> SaveFile(IFormFile file)
         {
-            // Tạo tên file duy nhất để không bị trùng
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            if (file == null) return null;
 
-            // Đường dẫn đến thư mục wwwroot/images
-            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Browser","images");
+            // 1. Đường dẫn tuyệt đối để GHI file (Dùng cho ổ cứng)
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Browser", "images");
 
-            // Tạo thư mục nếu chưa có
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            if (!Directory.Exists(folderPath))
             {
-                await file.CopyToAsync(fileStream);
+                Directory.CreateDirectory(folderPath);
             }
 
-            return uniqueFileName; // Trả về tên file để lưu vào database
-        }
-        // GET: ProductController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(folderPath, fileName);
 
-        // POST: ProductController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(ProductDto productDto)
-        {
-            try
+            using (var stream = new FileStream(fullPath, FileMode.Create))
             {
-                return RedirectToAction(nameof(Index));
+                await file.CopyToAsync(stream);
             }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ProductController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ProductController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return $"{fileName}";
         }
     }
 }

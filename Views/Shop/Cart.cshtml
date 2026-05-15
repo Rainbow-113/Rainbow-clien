@@ -1,0 +1,104 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Rainbow.Models.CartDto
+
+<div class="container p-t-100">
+    <table class="table-shopping-cart">
+        <tr class="table_head">
+            <th class="column-1">Sản phẩm</th>
+            <th class="column-2">Tên</th>
+            <th class="column-2">Size</th>
+            <th class="column-2">Color</th>
+            <th class="column-3">Giá</th>
+            <th class="column-4">Số lượng</th>
+            <th class="column-5">Tổng cộng</th>
+        </tr>
+
+        @if (Model != null && Model.Items != null && Model.Items.Any())
+        {
+            @foreach (var item in Model.Items)
+            {
+                <tr class="table_row">
+                    <td class="column-1">
+                        <div class="how-itemcart1">
+                            <img src="/Browser/images/@item.ProductImage" alt="IMG">
+                        </div>
+                    </td>
+                    <td class="column-2">@item.ProductName</td>
+                    <td class="column-2">@item.Size</td>
+                    <td class="column-2">@item.Color</td>
+                    <td class="column-3">$ @item.Price</td>
+                    <td class="column-4">
+                        <div class="wrap-num-product flex-w m-l-auto m-r-0">
+                            <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+                                <i class="fs-16 zmdi zmdi-minus"></i>
+                            </div>
+
+                            <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product1" value="@item.Quantity">
+
+                            <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+                                <i class="fs-16 zmdi zmdi-plus"></i>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="column-5">$ @(item.Price* item.Quantity)</td>
+                    <td class="column-1">
+                        <div class="cart-img-product b-rad-4 o-f-hidden text-center" onclick="removeFromCart('@item.ProductId', '@item.Size', '@item.Color')" style="cursor: pointer;">
+                            <i class="fs-20 fa fa-trash cl8 hov-cl1 trans-04"></i>
+                        </div>
+                    </td>
+
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="p-t-50 p-b-50 text-center">
+                    <h4>Giỏ hàng đang trống!</h4>
+                    <br>
+                    <a href="@Url.Action("Index", "Home")" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                        Tiếp tục mua sắm
+                    </a>
+                </td>
+            </tr>
+        }
+        <tr class="table_row">
+            <td colspan="6" class="p-r-50" style="text-align: right;">
+                <h4 class="stext-101 cl2">Tổng tiền thanh toán:</h4>
+            </td>
+
+            <td class="column-5">
+                <h4 class="mtext-110 cl2">$ @Model.TotalCartPrice</h4>
+            </td>
+
+            <a asp-controller="Checkout" asp-action="Index"
+               class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer m-t-30">
+               xác nhận
+            </a>
+        </tr>
+
+    </table>
+    
+</div>
+@section Scripts{
+    <script>
+            function removeFromCart(productId, size, color) {
+            if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+                $.ajax({
+                    url: '/Shop/RemoveFromCart',
+                    type: 'POST',
+                    data: { productId: productId, size: size, color: color },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload(); // Tải lại trang để cập nhật giỏ hàng
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

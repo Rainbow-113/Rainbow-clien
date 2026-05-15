@@ -6,6 +6,7 @@
     Layout = "_AdminLayout";
 }
 <div>Category page</div>
+@Html.AntiForgeryToken()
 <div class="card shadow border-0 mt-4">
     <div class="card-header bg-secondary bg-gradient ml-0 py-3">
         <div class="row">
@@ -24,7 +25,14 @@
                 </a>
             </div>
         </div>
-
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success mt-2">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger mt-2">@TempData["Error"]</div>
+        }
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -46,12 +54,16 @@
                         <td>@item.IsActive</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary mx-2">
-                                    <i class="bi bi-pencil-square"></i> Edit
+                                <a asp-area="Admin"
+                                   asp-controller="Category"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-primary">
+                                    Edit
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger mx-2">
-                                    <i class="bi bi-trash-fill"></i> Delete
-                                </a>
+                                <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id', '@item.Name')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -60,4 +72,46 @@
         </table>
     </div>
 </div>
+
+@* scrip để xóa catergory *@
+
+ @section Scripts {
+    <script>
+        // Hàm 1: Phải đặt tên CHÍNH XÁC là confirmDelete
+        function confirmDelete(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: "Bạn có chắc muốn xóa: " + name,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDelete(id); // Gọi hàm thứ 2
+                }
+            });
+        }
+
+        // Hàm 2: Xử lý gửi form
+        function executeDelete(id) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Admin/Category/Delete/' + id;
+
+            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenElement) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = tokenElement.value;
+                form.appendChild(tokenInput);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+}
+
+
 

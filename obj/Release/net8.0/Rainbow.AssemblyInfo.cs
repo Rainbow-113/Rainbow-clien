@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rainbow")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8e7d2fcdb604be14fdfbfb3d507ac219f466dcb")]
 [assembly: System.Reflection.AssemblyProductAttribute("Rainbow")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Rainbow")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

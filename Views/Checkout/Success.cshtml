@@ -1,0 +1,77 @@
+﻿@model Rainbow.Models.OrderDto
+
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+<div class="container p-t-100 p-b-100">
+    <div class="bor10 p-lr-40 p-t-30 p-b-40 m-lr-auto col-lg-8 col-xl-7">
+        <div class="text-center p-b-30">
+            <i class="zmdi zmdi-check-circle cl1" style="font-size: 60px;"></i>
+            <h4 class="mtext-105 cl2 p-t-20">CẢM ƠN BẠN ĐÃ ĐẶT HÀNG!</h4>
+            <p class="stext-111 cl6 p-t-10">Mã đơn hàng của bạn đã được hệ thống ghi nhận.</p>
+        </div>
+
+        <hr />
+
+        <div class="row p-t-20">
+            <div class="col-md-6">
+                <h5 class="mtext-108 cl2 p-b-10">Thông tin nhận hàng</h5>
+                <p class="stext-111 cl6"><strong>Họ tên:</strong> @Model.FullName</p>
+                <p class="stext-111 cl6"><strong>Điện thoại:</strong> @Model.PhoneNumber</p>
+                <p class="stext-111 cl6"><strong>Địa chỉ:</strong> @Model.Address</p>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mtext-108 cl2 p-b-10">Chi tiết thanh toán</h5>
+                <p class="stext-111 cl6"><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="stext-111 cl6"><strong>Phương thức:</strong> @Model.PaymentMethod</p>
+                <p class="stext-111 cl6"><strong>Trạng thái:</strong> <span class="badge badge-warning">@Model.Status</span></p>
+            </div>
+        </div>
+
+        <div class="p-t-30">
+            <table class="table-shopping-cart">
+                <tr class="table_head">
+                    <th class="column-1">Sản phẩm</th>
+                    <th class="column-2"></th>
+                    <th class="column-3">Giá</th>
+                    <th class="column-4">SL</th>
+                    <th class="column-5">Tổng</th>
+                </tr>
+
+                @foreach (var item in Model.Items)
+                {
+                    <tr class="table_row">
+                        <td class="column-1">
+                            <div class="how-itemcart1">
+                                <img src="~/Browser/images/@item.ProductName" alt="IMG">
+                            </div>
+                        </td>
+                        <td class="column-2">
+                            @item.ProductName
+                            <p class="stext-111 cl6">Size: @item.Size | Color: @item.Color</p>
+                        </td>
+                        <td class="column-3">@item.Price.ToString("C")</td>
+                        <td class="column-4">@item.Quantity</td>
+                        <td class="column-5">@((item.Price * item.Quantity).ToString("C"))</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+        <div class="flex-w flex-t p-t-27 p-b-33">
+            <div class="size-208">
+                <span class="mtext-101 cl2">Tổng tiền thanh toán:</span>
+            </div>
+            <div class="size-209 p-t-1">
+                <span class="mtext-110 cl2">@Model.TotalAmount.ToString("C")</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a asp-controller="Home" asp-action="Index" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+                TIẾP TỤC MUA SẮM
+            </a>
+        </div>
+    </div>
+</div>

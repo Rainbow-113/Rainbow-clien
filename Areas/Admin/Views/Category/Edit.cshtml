@@ -1,0 +1,51 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_AdminLayout";
+}
+
+@model Rainbow.Models.CategoryDto
+
+<div class="container p-4 border shadow mt-4">
+    <div class="row pb-2">
+        <h2 class="text-primary">Edit Category</h2>
+        <hr />
+    </div>
+
+    <form asp-action="Edit" method="post">
+        @* Quan trọng: Phải giữ ID ẩn để biết đang sửa cái nào *@
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            @* Chú ý tên trường theo Model của bạn (Description hoặc Decription) *@
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input asp-for="IsActive" type="checkbox" class="form-check-input" id="isActiveCheck">
+            <label class="form-check-label" for="isActiveCheck">Is Active</label>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary w-100">Update</button>
+            </div>
+            <div class="col-6">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Back to List</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,80 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Rainbow.Models.UserProfileDto
+
+@{
+    Layout = "_Layout"; 
+}
+
+<div class="container p-t-100 p-b-100">
+    <div class="bor10 p-lr-40 p-t-30 p-b-40 bg0">
+        <h4 class="mtext-105 cl2 txt-center p-b-40">
+            Hồ Sơ Cá Nhân
+        </h4>
+
+        <div class="row justify-content-center">
+            
+
+            <div class="col-md-8 col-lg-6">
+                <div class="p-l-20 p-l-0-sm">
+                    <div class="p-b-15 bor12 m-b-20">
+                        <span class="stext-111 cl3">Thông tin cơ bản</span>
+                    </div>
+
+                    <div class="flex-w flex-t p-b-15">
+                        <div class="size-208">
+                            <span class="stext-110 cl2"><i class="fa fa-user m-r-10"></i> Tên tài khoản:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="stext-115 cl6">@Model.UserName</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-w flex-t p-b-15">
+                        <div class="size-208">
+                            <span class="stext-110 cl2"><i class="fa fa-id-card m-r-10"></i> Họ và tên:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="stext-115 cl1 blue">@Model.FullName</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-w flex-t p-b-15">
+                        <div class="size-208">
+                            <span class="stext-110 cl2"><i class="fa fa-envelope m-r-10"></i> Email:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="stext-115 cl6">@Model.Email</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-w flex-t p-b-15">
+                        <div class="size-208">
+                            <span class="stext-110 cl2"><i class="fa fa-phone m-r-10"></i> Điện thoại:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="stext-115 cl6">@Model.Number</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-w flex-t p-b-15">
+                        <div class="size-208">
+                            <span class="stext-110 cl2"><i class="fa fa-map-marker m-r-10"></i> Địa chỉ:</span>
+                        </div>
+                        <div class="size-209">
+                            <span class="stext-115 cl6">@Model.Address</span>
+                        </div>
+                    </div>
+
+                    <a asp-asp-controller="AccountController" asp-action="EditAccount" as class="flex-c-m stext-101 cl0 size-116 bg1 bor1 hov-btn1 p-lr-15 trans-04 m-t-20">
+                        Chỉnh sửa thông tin
+                    </a>
+                    <a asp-asp-controller="AccountController" asp-action="ChangePassword" as class="flex-c-m stext-101 cl0 size-116 bg1 bor1 hov-btn1 p-lr-15 trans-04 m-t-20">
+                       ĐỔI mật khẩu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

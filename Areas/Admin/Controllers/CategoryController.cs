@@ -37,7 +37,6 @@ namespace Rainbow.Areas.Admin.Controllers
         // POST: CategoryController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HttpPost]
         public async Task<IActionResult> Create(CategoryDto categoryDto)
         {
             if (ModelState.IsValid)
@@ -53,45 +52,69 @@ namespace Rainbow.Areas.Admin.Controllers
         }
 
         // GET: CategoryController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(string id)
         {
-            return View();
+            if (string.IsNullOrEmpty(id)) return BadRequest();
+
+            var category = await _categoryService.GetCategoryByIdAsync(id);
+            if (category == null) return NotFound();
+
+            return View(category);
         }
 
         // POST: CategoryController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(string id, CategoryDto categoryDto)
         {
-            try
+            if (id != categoryDto.Id) return BadRequest();
+
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                bool isUpdated = await _categoryService.UpdateCategoryAsync(id, categoryDto);
+                if (isUpdated)
+                {
+                    TempData["Success"] = "Cập nhật danh mục thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                ModelState.AddModelError("", "Lỗi khi cập nhật danh mục.");
             }
-            catch
-            {
-                return View();
-            }
+            return View(categoryDto);
         }
 
         // GET: CategoryController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(string id)
         {
             return View();
         }
-
         // POST: CategoryController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(string id, IFormCollection collection)
         {
             try
             {
+                if (string.IsNullOrEmpty(id)) return BadRequest();
+                bool isDeleted = await _categoryService.DeleteCategoryAsync(id);
+                if (isDeleted)
+                {
+                    TempData["Success"] = "Xóa danh mục thành công!";
+                }
+                else
+                {
+                    TempData["Error"] = "Không thể xóa. Có thể danh mục này đang chứa sản phẩm!";
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                TempData["Error"] = "Đã xảy ra lỗi hệ thống khi xóa.";
+                return RedirectToAction(nameof(Index));
             }
         }
+
+
+
+
     }
 }
