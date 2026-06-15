@@ -123,10 +123,6 @@ Mỗi nghiệp vụ có một Service riêng sử dụng `HttpClient` để gọ
 
 ---
 
-## 📸 Ảnh chụp màn hình
-
-> *(Sẽ cập nhật sau)*
-
 ---
 
 ## 👤 Tác giả
